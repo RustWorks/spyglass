@@ -461,7 +461,10 @@ pub async fn plugin_init(
     if plugin.is_enabled {
         log::info!("STARTING <{}>", plugin.name);
         let start = instance.exports.get_function("_start")?;
-        start.call(&[])?;
+        if let Err(e) = start.call(&[]) {
+            sentry::capture_error(&e);
+            log::error!("Unable to start plugin: {}, reason: {}", plugin.name, e);
+        }
     }
 
     Ok((instance, wasi_env))
