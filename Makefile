@@ -12,6 +12,31 @@ build-backend:
 	mkdir -p crates/tauri/binaries
 	cp target/debug/spyglass crates/tauri/binaries/spyglass-server-$(TARGET_ARCH)
 
+# Create a universal binary for macos
+bundle-debug: build-plugins-release
+	mkdir -p crates/tauri/binaries
+	cargo build -p spyglass --target aarch64-apple-darwin
+	cp target/aarch64-apple-darwin/debug/spyglass crates/tauri/binaries/spyglass-server-aarch64-apple-darwin
+
+	cargo build -p spyglass --target x86_64-apple-darwin
+	cp target/x86_64-apple-darwin/debug/spyglass crates/tauri/binaries/spyglass-server-x86_64-apple-darwin
+
+	lipo -create -output crates/tauri/binaries/spyglass-server-universal-apple-darwin \
+		target/aarch64-apple-darwin/debug/spyglass \
+		target/x86_64-apple-darwin/debug/spyglass
+
+bundle-release: build-plugins-release
+	mkdir -p crates/tauri/binaries
+	cargo build -p spyglass --release --target aarch64-apple-darwin
+	cp target/aarch64-apple-darwin/release/spyglass crates/tauri/binaries/spyglass-server-aarch64-apple-darwin
+
+	cargo build -p spyglass --release --target x86_64-apple-darwin
+	cp target/x86_64-apple-darwin/release/spyglass crates/tauri/binaries/spyglass-server-x86_64-apple-darwin
+
+	lipo -create -output crates/tauri/binaries/spyglass-server-universal-apple-darwin \
+		target/aarch64-apple-darwin/release/spyglass \
+		target/x86_64-apple-darwin/release/spyglass
+
 build-client:
 	cargo build -p spyglass-client -p spyglass-app
 
