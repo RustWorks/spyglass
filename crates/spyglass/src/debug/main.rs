@@ -28,6 +28,7 @@ enum Command {
     CrawlDetails { crawl_task_id: i64 },
     GetDocumentDetails { id_or_url: String },
     GetDocumentQueryExplanation { id_or_url: String, query: String },
+    DocumentQueryToText { query: String },
 }
 
 #[tokio::main]
@@ -184,6 +185,34 @@ async fn main() -> anyhow::Result<ExitCode> {
                             None => {
                                 println!("Could not get score for document");
                             }
+                        }
+                    }
+                }
+            }
+            Command::DocumentQueryToText { query } => {
+                let db = models::create_connection(&config, false).await?;
+                let index = ReadonlySearcher::with_index(&IndexPath::LocalPath(config.index_dir()))
+                .expect("Unable to open index.");
+
+                let mut stats = QueryStats::new();
+
+                let docs = ReadonlySearcher::search_with_lens(&db, &vec![], &index, query.as_str(),  &mut stats).await;
+
+                if docs.is_empty() {
+                    println!("No indexed document for query {:?}", query);
+                } else {
+                    for (_score, doc_addr) in docs {
+                        if let Ok(Ok(doc)) = index
+                            .reader
+                            .searcher()
+                            .doc(doc_addr)
+                            .map(|doc| search::document_to_struct(&doc))
+                        {
+                            println!(
+                                "Url: {}", doc.url);
+                            println!("{}", doc.content);
+                        } else {
+                            println!("Error accessing Doc at address {:?}", doc_addr);
                         }
                     }
                 }
