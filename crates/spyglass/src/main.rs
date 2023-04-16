@@ -15,7 +15,7 @@ use tracing_appender::non_blocking::WorkerGuard;
 use tracing_log::LogTracer;
 use tracing_subscriber::{fmt, layer::SubscriberExt, EnvFilter};
 
-mod api;
+pub mod api;
 
 const LOG_LEVEL: tracing::Level = tracing::Level::INFO;
 #[cfg(not(debug_assertions))]
