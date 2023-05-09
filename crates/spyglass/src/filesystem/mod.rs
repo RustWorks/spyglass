@@ -36,9 +36,11 @@ use notify_debouncer_mini::{DebouncedEvent, DebouncedEventKind, Debouncer};
 
 use crate::documents;
 
-pub mod audio;
 pub mod extensions;
 pub mod utils;
+
+#[cfg(feature = "whisper")]
+pub mod audio;
 
 /// The lens name for indexed files
 pub const FILES_LENS: &str = "files";

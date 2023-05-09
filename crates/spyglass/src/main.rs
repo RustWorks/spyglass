@@ -153,6 +153,7 @@ async fn main() -> Result<(), ()> {
         }
     }
 
+    log::info!("Migrating Plugins");
     {
         // migrate plugin settings
         let db = models::create_connection(&config, false)
@@ -174,13 +175,16 @@ async fn main() -> Result<(), ()> {
         }
     }
 
+    log::info!("Loading Preferences");
     // Initialize/Load user preferences
     let state = AppState::new(&config, args.read_only).await;
     // Only startup API server if we're in readonly mode.
     if args.check {
         // config check mode, nothing to do.
+        log::info!("Check mode complete");
         return Ok(());
     } else if args.api_only {
+        log::info!("Starting api server");
         match api::start_api_server(args.addr, state, config).await {
             Ok((_, handle)) => handle.stopped().await,
             Err(err) => {
@@ -189,6 +193,7 @@ async fn main() -> Result<(), ()> {
             }
         }
     } else {
+        log::info!("Starting backend and api server");
         let indexer_handle = start_backend(state.clone(), config.clone());
         // API server
         let api_handle = api::start_api_server(args.addr, state, config);
@@ -332,6 +337,7 @@ async fn start_backend(state: AppState, config: Config) {
         }
     }
 
+    log::info!("Backend started");
     let _ = tokio::join!(
         manager_handle,
         worker_handle,

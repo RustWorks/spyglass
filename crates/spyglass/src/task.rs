@@ -19,6 +19,7 @@ use tokio::sync::{broadcast, mpsc};
 use crate::connection::{api_id_to_label, load_connection};
 use crate::crawler::bootstrap;
 use crate::filesystem;
+#[cfg(feature = "whisper")]
 use crate::filesystem::extensions::AudioExt;
 use crate::state::AppState;
 use crate::task::worker::FetchResult;
@@ -194,6 +195,7 @@ pub async fn config_task(mut state: AppState) {
                         // Process any new added paths
                         process_filesystem_changes(&state, &diff).await;
                         // Audio transcriptions enabled?
+                        #[cfg(feature = "whisper")]
                         if new_settings.audio_settings.enable_audio_transcription {
                             // Do we already have this model?
                             let model_path = state.config.model_dir().join("whisper.base.en.bin");
@@ -230,6 +232,7 @@ pub async fn config_task(mut state: AppState) {
 }
 
 /// Downloads a model from our assets S3 bucket
+#[cfg(feature = "whisper")]
 async fn download_model(
     state: &AppState,
     model_name: &str,

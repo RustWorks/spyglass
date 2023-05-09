@@ -65,7 +65,7 @@ warc = "0.3"
 warp = "0.3"
 wasmer = "2.3.0"
 wasmer-wasi = "2.3.0"
-whisper-rs = { git = "https://github.com/tazz4843/whisper-rs", rev = "0859b41191dcbf176f9924eb82854262c3417b42" }
+whisper-rs = { git = "https://github.com/tazz4843/whisper-rs", rev = "0859b41191dcbf176f9924eb82854262c3417b42",  optional = true }
 
 # Spyglass libs
 auth_core = { git = "https://github.com/spyglass-search/third-party-apis", rev = "2a2f4532364e931b4ce5cfdeb55383a43d092391" }
@@ -85,7 +85,9 @@ spyglass-searcher = { path = "../spyglass-searcher" }
 tracing-test = { version = "0.2.4", features = ["no-env-filter"] }
 
 [features]
+default = ["whisper"]
 tokio-console = ["tokio/tracing", "console-subscriber"]
+whisper = ["dep:whisper-rs"]
 
 [lib]
 name = "libspyglass"
